@@ -11,8 +11,12 @@ import com.opensymphony.xwork.XworkException;
 import com.opensymphony.xwork.util.*;
 
 import java.util.Iterator;
+import java.util.Collections;
+import java.util.Set;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -87,14 +91,20 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Patrick Lightbody
  * @author tmjee
- * 
+ *
  * @version $Date: 2008-06-13 16:43:46 +0900 (金, 13 6 2008) $ $Id: ParametersInterceptor.java 1816 2008-06-13 07:43:46Z rainerh $
  */
 public class ParametersInterceptor extends AroundInterceptor {
 
-	private static final long serialVersionUID = 1939469770555684892L;
-	
-	private static final Log LOG = LogFactory.getLog(ParametersInterceptor.class);
+    private static final long serialVersionUID = 1939469770555684892L;
+
+    private static final Log LOG = LogFactory.getLog(ParametersInterceptor.class);
+
+    private String acceptedParamNames = "\\w+((\\.\\w+)|(\\[\\d+\\])|(\\(\\d+\\))|(\\['\\w+'\\])|(\\('\\w+'\\)))*";
+    private Pattern acceptedPattern = Pattern.compile(acceptedParamNames);
+
+    Set excludeParams = Collections.emptySet();
+    Set acceptParams = Collections.emptySet();
 
     protected void after(ActionInvocation dispatcher, String result) throws Exception {
     }
@@ -109,18 +119,18 @@ public class ParametersInterceptor extends AroundInterceptor {
             }
 
             if (parameters != null) {
-            	Map contextMap = ac.getContextMap();
+                Map contextMap = ac.getContextMap();
                 try {
-                	OgnlContextState.setCreatingNullObjects(contextMap, true);
-                	OgnlContextState.setDenyMethodExecution(contextMap, true);
-                	OgnlContextState.setReportingConversionErrors(contextMap, true);
+                    OgnlContextState.setCreatingNullObjects(contextMap, true);
+                    OgnlContextState.setDenyMethodExecution(contextMap, true);
+                    OgnlContextState.setReportingConversionErrors(contextMap, true);
 
                     OgnlValueStack stack = ac.getValueStack();
                     setParameters(invocation.getAction(), stack, parameters);
                 } finally {
-                	OgnlContextState.setCreatingNullObjects(contextMap, false);
-                	OgnlContextState.setDenyMethodExecution(contextMap, false);
-                	OgnlContextState.setReportingConversionErrors(contextMap, false);
+                    OgnlContextState.setCreatingNullObjects(contextMap, false);
+                    OgnlContextState.setDenyMethodExecution(contextMap, false);
+                    OgnlContextState.setReportingConversionErrors(contextMap, false);
                 }
             }
         }
@@ -190,10 +200,36 @@ public class ParametersInterceptor extends AroundInterceptor {
 
 
     protected boolean acceptableName(String name) {
-        if (name.indexOf('=') != -1 || name.indexOf(',') != -1 || name.indexOf('#') != -1 || name.indexOf(':') != -1 || name.indexOf("\\u0023") != -1) {
-            return false;
-        } else {
-            return true;
-        }
+        return isAccepted(name) && !isExcluded(name);
     }
+
+    protected boolean isAccepted(String paramName) {
+        if (!this.acceptParams.isEmpty()) {
+            Iterator ite = acceptParams.iterator();
+            while(ite.hasNext()){
+                Pattern pattern = (Pattern)ite.next();
+                Matcher matcher = pattern.matcher(paramName);
+                if (matcher.matches()) {
+                    return true;
+                }
+            }
+            return false;
+        } else
+            return acceptedPattern.matcher(paramName).matches();
+    }
+
+    protected boolean isExcluded(String paramName) {
+        if (!this.excludeParams.isEmpty()) {
+            Iterator ite = excludeParams.iterator();
+            while(ite.hasNext()){
+                Pattern pattern = (Pattern)ite.next();
+                Matcher matcher = pattern.matcher(paramName);
+                if (matcher.matches()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }
