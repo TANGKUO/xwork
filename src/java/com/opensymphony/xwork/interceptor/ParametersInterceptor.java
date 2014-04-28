@@ -96,7 +96,6 @@ public class ParametersInterceptor extends AroundInterceptor {
     private String ACCEPTED_PARAM_NAMES = "\\w+((\\.\\w+)|(\\[\\d+\\])|(\\(\\d+\\))|(\\['\\w+'\\])|(\\('\\w+'\\)))*";
     private Pattern acceptedPattern = Pattern.compile(ACCEPTED_PARAM_NAMES,Pattern.CASE_INSENSITIVE);
 
-//    Set excludeParams = Collections.emptySet();
     Set excludeParams;
     Set acceptParams = Collections.emptySet();
 
