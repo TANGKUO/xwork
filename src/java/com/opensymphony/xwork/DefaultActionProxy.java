@@ -9,6 +9,7 @@ import com.opensymphony.xwork.config.ConfigurationManager;
 import com.opensymphony.xwork.config.entities.ActionConfig;
 import com.opensymphony.xwork.util.LocalizedTextUtil;
 import com.opensymphony.util.TextUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -52,7 +53,7 @@ public class DefaultActionProxy implements ActionProxy, Serializable {
             LOG.debug("Creating an DefaultActionProxy for namespace " + namespace + " and action name " + actionName);
         }
 
-        this.actionName = actionName;
+        this.actionName = StringEscapeUtils.escapeHtml(actionName);
         this.namespace = namespace;
         this.executeResult = executeResult;
         this.extraContext = extraContext;

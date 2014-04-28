@@ -4,17 +4,10 @@
  */
 package com.opensymphony.xwork.interceptor;
 
-import com.opensymphony.xwork.ActionContext;
-import com.opensymphony.xwork.ActionInvocation;
-import com.opensymphony.xwork.ValidationAware;
-import com.opensymphony.xwork.XworkException;
+import com.opensymphony.xwork.*;
 import com.opensymphony.xwork.util.*;
 
-import java.util.Iterator;
-import java.util.Collections;
-import java.util.Set;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,11 +93,23 @@ public class ParametersInterceptor extends AroundInterceptor {
 
     private static final Log LOG = LogFactory.getLog(ParametersInterceptor.class);
 
-    private String acceptedParamNames = "\\w+((\\.\\w+)|(\\[\\d+\\])|(\\(\\d+\\))|(\\['\\w+'\\])|(\\('\\w+'\\)))*";
-    private Pattern acceptedPattern = Pattern.compile(acceptedParamNames);
+    private String ACCEPTED_PARAM_NAMES = "\\w+((\\.\\w+)|(\\[\\d+\\])|(\\(\\d+\\))|(\\['\\w+'\\])|(\\('\\w+'\\)))*";
+    private Pattern acceptedPattern = Pattern.compile(ACCEPTED_PARAM_NAMES,Pattern.CASE_INSENSITIVE);
 
-    Set excludeParams = Collections.emptySet();
+//    Set excludeParams = Collections.emptySet();
+    Set excludeParams;
     Set acceptParams = Collections.emptySet();
+
+    public ParametersInterceptor() {
+        initializeHardCodedExcludePatterns();
+    }
+
+    protected void initializeHardCodedExcludePatterns() {
+        excludeParams = new HashSet();
+        for(int i = 0 ; i < ExcludedPatterns.EXCLUDED_PATTERNS.length ; i++){
+            excludeParams.add(Pattern.compile(ExcludedPatterns.EXCLUDED_PATTERNS[i], Pattern.CASE_INSENSITIVE));
+        }
+    }
 
     protected void after(ActionInvocation dispatcher, String result) throws Exception {
     }
