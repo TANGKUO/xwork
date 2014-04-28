@@ -169,6 +169,7 @@ public class ParametersInterceptorTest extends XWorkTestCase {
         interceptor.destroy();
     }
 
+    //Added S2-021
     public void testArrayClassPollutionBlockedByPattern() throws Exception{
 
         final String valid = "validKey";
@@ -221,6 +222,7 @@ public class ParametersInterceptorTest extends XWorkTestCase {
 
     }
 
+    //Added S2-021
     public void testExcludedPatternsGetInitialized() throws Exception {
         ParametersInterceptor parametersInterceptor = new ParametersInterceptor();
         assertEquals(ExcludedPatterns.EXCLUDED_PATTERNS.length, parametersInterceptor.excludeParams.size());
